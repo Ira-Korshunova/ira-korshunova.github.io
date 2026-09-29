@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Irina Korshunova — AI Product & Prompt Engineer</title>
+<meta name="description" content="Создаю AI-инструменты для сложных бизнес-процессов: документы, нормативная база, аналитика и мониторинг рисков.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400..700;1,400..700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0F172A;          /* почти чёрный с синим подтоном */
+    --card: #141C2B;        /* карточки: глубокий сине-графитовый */
+    --card-hover: #1B2438;  /* hover карточек */
+    --ink: #F4F1EA;         /* текст: фарфор */
+    --muted: #94A3B8;       /* вторичный текст */
+    --line: #2A3547;        /* тонкие границы */
+    --green: #5EEAD4;       /* акцентный синий: заголовки-акценты, ссылки, результат */
+    --gold: #5EEAD4;        /* нумерация, линии */
+    --lime: #F4F1EA;        /* кнопки на тёмном фоне: фарфор */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Manrope", -apple-system, sans-serif;
+    background: var(--bg); color: var(--ink);
+    font-size: 17px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1290px; margin: 0 auto; padding: 0 24px; }
+  a { color: inherit; }
+
+  /* ---------- появление при прокрутке ---------- */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.on { opacity: 1; transform: none; }
+  .draw { height: 1px; background: var(--gold); width: 0; transition: width 1.2s ease .2s; }
+  .reveal.on .draw { width: 100%; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .draw { width: 100%; transition: none; }
+    .hero-lines span { opacity: 1; transform: none; animation: none; }
+    .ray { stroke-dashoffset: 0; animation: none; }
+    .ray-dot { opacity: 1; animation: none; }
+    .ray-run { display: none; }
+    * { animation: none !important; }
+  }
+
+  /* ---------- подсветка за курсором ---------- */
+  .spot {
+    position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    opacity: 0; transition: opacity .5s ease;
+    background: radial-gradient(460px circle at var(--mx, 50%) var(--my, 40%), rgba(93,120,214,.06), transparent 65%);
+  }
+  body.has-spot .spot { opacity: 1; }
+
+  /* ---------- навигация ---------- */
+  nav { position: sticky; top: 0; z-index: 50; background: rgba(15,23,42,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); color: var(--ink); }
+  nav .links a { color: var(--muted); }
+  nav .burger { color: var(--ink); }
+  .nav-in { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+  .logo { font-weight: 600; letter-spacing: .02em; text-decoration: none; }
+  .logo em { font-family: "Archivo", sans-serif; font-style: normal; color: #5EEAD4; }
+  .links { display: flex; gap: 34px; }
+  .links a { font-size: 15px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color .25s; }
+  .links a:hover { color: #5EEAD4; }
+  .burger { display: none; background: none; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); font: inherit; font-size: 14px; padding: 8px 14px; cursor: pointer; }
+
+  /* ---------- hero ---------- */
+  header.hero { padding: 110px 0 110px; } /* низ = 110px как у секций — одинаковые зазоры */
+  .hero-grid { display: grid; grid-template-columns: 1.02fr .98fr; align-items: center; gap: 40px; }
+  .hero-art { display: grid; place-items: center; padding-left: 200px; }
+  .rays { width: min(100%, 430px); height: auto; overflow: visible; }
+  /* лучи-снежинки: точки вместо линий, рваными россыпями */
+  .ray { stroke-linecap: round; stroke-dasharray: 0 0.062 0.003 0.09 0.002 0.11; stroke-dashoffset: 0; animation: none; }
+  .ray.sp { stroke-width: 3.4; }
+  .ray.gh { stroke-width: 2.4; }
+.ray-run { display: none; }
+  .ray-run.sp { stroke-width: 3.6; }
+  .ray-run.gh { stroke-width: 2.6; }
+  .ray-dot { opacity: 0; animation: dotIn .5s ease forwards; }
+  .ray-dot.sp { fill: #5EEAD4; }
+  .ray-dot.gh { fill: rgba(226,232,240,.75); }
+  @keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+  @keyframes rayIn { to { stroke-dashoffset: 0; } }
+  @keyframes dotIn { to { opacity: 1; } }
+  .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .08em; color: #5EEAD4; margin-bottom: 26px; }
+  h1 { font-family: "Archivo", sans-serif; font-weight: 500; font-size: clamp(26px, 3.4vw, 38px); line-height: 1.12; letter-spacing: -.012em; color: var(--ink); }
+  h1 em { font-style: normal; color: var(--ink); }
+  .hero-lines span { display: block; opacity: 0; transform: translateY(16px); animation: rise .65s ease forwards; }
+  .hero-lines span:nth-child(2) { animation-delay: .16s; }
+  .hero-lines span:nth-child(3) { animation-delay: .32s; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  .sub { color: var(--muted); font-size: 18px; max-width: 34em; margin: 30px 0 40px; }
+  .cta-row { display: flex; gap: 44px; flex-wrap: wrap; padding-top: 36px; }
+  .cta-row .btn { width: 216px; text-align: center; box-sizing: border-box; }
+  .cta-row .btn-ghost { margin-left: 72px; }
+  .btn { display: inline-block; font: 600 15px/1 "Manrope", sans-serif; padding: 17px 30px; border-radius: 2px; text-decoration: none; transition: transform .25s, background .25s, border-color .25s, color .25s; }
+  .btn-primary, .btn-ghost { background: transparent; color: var(--muted); border: 1px solid #34425A; }
+  .btn-primary:hover, .btn-ghost:hover { background: rgba(148,163,184,.08); border-color: #5EEAD4; color: #5EEAD4; }
+  .btn-primary:hover { transform: translateY(-2px); }
+
+  /* ---------- секции ---------- */
+  section { padding: 110px 0; }
+  .sec-head { margin-bottom: 56px; }
+  h2 { font-family: "Archivo", sans-serif; font-weight: 500; font-size: clamp(22px, 2.2vw, 28px); line-height: 1.2; letter-spacing: -.01em; }
+  h2 em { font-style: italic; color: var(--green); }
+  .sec-sub { color: var(--muted); font-size: 18px; margin-top: 16px; max-width: 40em; }
+
+  /* ---- обо мне ---- */
+
+  /* ---- кейсы (фарфоровая секция, тёмные карточки) ---- */
+  #cases { background: var(--bg); }
+  #cases .wrap { display: grid; grid-template-columns: .8fr 1.2fr; gap: 64px; align-items: start; }
+  #cases .sec-head { position: sticky; top: 110px; margin-bottom: 0; }
+  .cases { grid-template-columns: 1fr; }
+  #cases .sec-sub { color: var(--muted); }
+  .cases { display: grid; gap: 24px; }
+  .cases-row { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  .case.wide { grid-template-columns: 1.05fr .95fr; gap: 22px; align-items: stretch; display: grid; border-color: var(--line); }
+  .case-text { display: flex; flex-direction: column; gap: 6px; }
+  .case-media { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+  .case { background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 20px 20px 17px; display: flex; flex-direction: column; gap: 8px; transition: transform .3s, border-color .3s, background .3s, box-shadow .3s; position: relative; box-shadow: 0 10px 26px rgba(3,6,12,.32); }
+  .case:hover { transform: translateY(-3px); border-color: #3E4C63; background: var(--card-hover); box-shadow: 0 14px 34px rgba(3,6,12,.42); }
+  .case-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .cnum { font-family: "Archivo", sans-serif; color: #5EEAD4; font-size: 13px; }
+  .ctag { font-size: 11px; font-weight: 600; color: #0F172A; background: var(--lime); border-radius: 99px; padding: 4px 11px; }
+  .ctag.ghost { background: rgba(45,212,191,.1); color: #5EEAD4; border: none; }
+  .ctype { font-size: 12.5px; letter-spacing: .04em; color: var(--muted); margin: 2px 0 -6px; }
+  h3 { font-family: "Archivo", sans-serif; font-weight: 500; font-size: 17.5px; line-height: 1.3; transition: color .25s; }
+  .case:hover h3, .case:hover dt { color: #5EEAD4; }
+  .case dl { display: grid; gap: 5px; margin-top: 0; }
+  .case dt { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); margin-bottom: 2px; transition: color .25s; }
+  .case dd { color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+  .result { margin-top: auto; padding-top: 8px; border-top: 1px solid rgba(169,178,193,.4); }
+  .result .rv { font-family: "Archivo", sans-serif; font-size: 16px; color: var(--ink); line-height: 1.35; }
+  .result .rl { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+  .case .result { margin-top: auto; }
+  .case .tech { display: flex; flex-wrap: wrap; gap: 6px; }
+  .case .tech span { font-size: 11px; color: #5EEAD4; background: rgba(45,212,191,.1); border: none; border-radius: 3px; padding: 3px 8px; line-height: 1; letter-spacing: .02em; }
+  .case .btn { align-self: flex-start; margin-top: 2px; padding: 8px 14px; border-radius: 2px; font-size: 12.5px; }
+
+  /* — слайд-шоу — */
+  .shots { position: relative; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #0B0F16; }
+  .frame { display: none; }
+  .frame.on { display: block; }
+  .frame img { display: block; width: 100%; height: auto; }
+  .cap {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 26px 14px 10px; font-size: 12px; color: #F4F1EA;
+    background: linear-gradient(180deg, rgba(6,9,15,0), rgba(6,9,15,.8));
+  }
+  .arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 34px; height: 34px; border-radius: 50%; border: 0; cursor: pointer;
+    background: rgba(8,11,18,.6); color: #F4F1EA; font-size: 15px; line-height: 1;
+  }
+  .arrow:hover { background: rgba(8,11,18,.85); }
+  .arrow.prev { left: 10px; } .arrow.next { right: 10px; }
+  .dots { position: absolute; right: 12px; top: 10px; display: flex; gap: 6px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(244,240,231,.4); cursor: pointer; border: 0; padding: 0; }
+  .dot.on { background: var(--green); }
+  .counter { margin-top: 8px; text-align: center; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+  .case .shots { border-color: rgba(169,178,193,.4); }
+
+  /* — TG-диалог в карточке Work Bot — */
+  .case .tg { background: #1B2534; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .case .tg-head { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+  .case .ava { width: 26px; height: 26px; border-radius: 50%; background: #5EEAD4; color: #F4F1EA; display: grid; place-items: center; font-weight: 700; font-size: 11px; }
+  .case .tg-name { font-weight: 600; font-size: 13px; }
+  .case .tg-status { font-size: 10px; color: #5EEAD4; }
+  .case .tg-body { padding: 11px 11px 13px; display: flex; flex-direction: column; gap: 7px; }
+  .case .msg { max-width: 86%; padding: 8px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.5; opacity: 0; transform: translateY(7px); transition: opacity .4s ease, transform .4s ease; }
+  .case .msg.on { opacity: 1; transform: none; }
+  .case .msg.user { align-self: flex-end; background: #1B2534; color: var(--ink); border: 1px solid var(--line); border-bottom-right-radius: 4px; }
+  .case .msg.bot  { align-self: flex-start; background: #1B2534; border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+  .case .msg .src { display: inline-block; margin-top: 5px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; color: #5EEAD4; border: 1px solid rgba(94,234,212,.45); }
+  .case .typing { align-self: flex-start; background: #1B2534; border: 1px solid var(--line); border-radius: 12px; border-bottom-left-radius: 4px; padding: 9px 11px; display: flex; gap: 4px; opacity: 0; transition: opacity .3s; }
+  .case .typing.on { opacity: 1; }
+  .case .typing i { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); animation: wblink 1.1s infinite; }
+  .case .typing i:nth-child(2) { animation-delay: .18s; }
+  .case .typing i:nth-child(3) { animation-delay: .36s; }
+  @keyframes wblink { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
+
+  /* ---- подход ---- */
+  #approach .wrap { display: grid; grid-template-columns: .8fr 1.2fr; gap: 64px; align-items: start; }
+  #approach .sec-head { position: sticky; top: 110px; margin-bottom: 0; }
+  #approach .steps { margin-top: 0; }
+  .approach-note { margin-top: 16px; font-size: 18px; line-height: 1.5; color: var(--muted); max-width: 40em; }
+  .approach .big { font-family: "Manrope", sans-serif; font-weight: 400; font-size: 18px; line-height: 1.5; color: var(--muted); margin-top: 16px; max-width: 40em; }
+  .approach .big em { font-style: italic; color: var(--green); }
+  .steps { display: grid; grid-template-columns: 1fr; gap: 0; margin-top: 36px; }
+  .step { position: relative; z-index: 1; width: 86%; background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+    padding: 15px 20px; box-shadow: rgba(2,12,27,.7) 0 10px 30px -15px; transition: border-color .3s, background .3s, transform .3s; }
+  .step:nth-child(odd) { justify-self: start; }   /* первая — слева */
+  .step:nth-child(even) { justify-self: end; }    /* вторая — справа */
+  .step:nth-child(3n) { justify-self: start; }    /* третья — снова слева */
+  .step + .step { margin-top: -16px; } /* каждая чуть наползает на предыдущую, зигзагом */
+  .step:hover { border-color: #3E4C63; background: var(--card-hover); z-index: 5; }
+  .step .snum { font-family: "Archivo", sans-serif; color: #5EEAD4; font-size: 26px; }
+  .step .stx { font-size: 15.5px; font-weight: 500; margin-top: 0; color: var(--ink); transition: color .25s; }
+  .step:hover .stx { color: #5EEAD4; }
+  .step .sdes { color: var(--ink); font-size: 13.5px; line-height: 1.45; margin-top: 4px; }
+
+  /* ---- контакты ---- */
+  .contact-wrap { background: var(--bg); border-top: 1px solid var(--line); }
+  .contact-wrap h2 { color: var(--ink); }
+  .contact-wrap h2 em { color: var(--green); }
+  .contact { padding: 90px 0 90px; }
+  .contact-wrap .wrap { display: grid; grid-template-columns: .9fr .8fr; gap: 16px 64px; align-items: center; }
+  #contact .social-line { margin-top: 16px; font-size: 14px; color: var(--muted); }
+.contact-list { display: flex; flex-direction: column; gap: 12px; margin-top: 22px; }
+  .c-item { display: flex; align-items: center; gap: 13px; font-size: 15px; color: var(--muted); text-decoration: none; transition: color .25s; }
+  .c-item svg { width: 18px; height: 18px; flex: 0 0 18px; color: #5EEAD4; transition: color .25s; }
+  .c-item:hover { color: var(--ink); }
+  .c-item:hover svg { color: var(--ink); }
+  .contact-wrap .sec-head { grid-column: 1; grid-row: 1; margin-bottom: 0; }
+  .contact-list { grid-column: 1; grid-row: 2; }
+  .contact-cta { grid-column: 2; grid-row: 1 / span 2; align-self: end; justify-self: end; }
+  #contact .sec-head p { margin-top: 16px; max-width: 26em; }
+  #contact .social-line { margin-top: 28px; font-size: 14px; color: var(--muted); }
+  #contact .social-line a { color: #5EEAD4; text-decoration: none; transition: color .25s; }
+  .social-line a:hover { color: var(--ink); }
+  .btn-lime { background: var(--lime); color: #0F172A; font-size: 16px; padding: 18px 34px; }
+  .btn-lime:hover { transform: translateY(-2px); background: #FFFFFF; }
+
+  footer { border-top: 1px solid var(--line); padding: 26px 0 30px; color: rgba(169,178,193,.55); }
+  .foot-in { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 14px; }
+  .foot-note { margin-left: auto; padding-right: 0; }
+  .foot-note em { font-style: italic; color: #5EEAD4; font-weight: 500; }
+  
+  /* ---------- адаптив ---------- */
+  @media (max-width: 1020px) {
+    #cases .wrap, #approach .wrap, .contact-wrap .wrap { grid-template-columns: 1fr; gap: 40px; }
+    #cases .sec-head, #approach .sec-head { position: static; }
+    .contact-cta { grid-column: 1; grid-row: auto; justify-self: start; }
+    .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+    .hero-art { display: none; }
+    .case.wide { grid-template-columns: 1fr; }
+    .cases-row { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; gap: 0; }
+    .step { padding-bottom: 28px; }
+  }
+  @media (max-width: 640px) {
+    body { font-size: 16px; }
+    section { padding: 78px 0; }
+    header.hero { padding: 110px 0 78px; }
+    .links { display: none; position: absolute; top: 68px; left: 0; right: 0; background: #1E293B; border-bottom: 1px solid var(--line); flex-direction: column; gap: 0; padding: 8px 24px 16px; }
+    .links.open { display: flex; }
+    .links a { padding: 13px 0; font-size: 16px; border-bottom: 1px solid var(--line); }
+    .burger { display: block; }
+    .sec-head { margin-bottom: 38px; }
+
+    .case { padding: 26px 22px 24px; }
+    .feed .what { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-in">
+    <a class="logo" href="#">Ирина Коршунова</a>
+    <button class="burger" id="burger" aria-expanded="false" aria-controls="menu">Меню</button>
+    <div class="links" id="menu">
+      <a href="#cases">Кейсы</a>
+      <a href="#approach">Подход</a>
+      <a href="#contact">Контакты</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">AI Product &amp; Prompt Engineer</p>
+      <h1 class="hero-lines"><span>Создаю AI-инструменты</span><span>для <em>сложных</em></span><span>бизнес-процессов</span></h1>
+      <p class="sub">Документы, нормативная база, аналитика и мониторинг рисков — превращаю сложные процессы в понятные AI-решения.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#cases">Смотреть кейсы</a>
+        <a class="btn btn-ghost" href="#contact">Связаться</a>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <svg class="rays" viewBox="0 -220 440 440">
+        <defs>
+          <radialGradient id="rayGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(94,234,212,.13)"/>
+            <stop offset="35%" stop-color="rgba(94,234,212,.07)"/>
+            <stop offset="70%" stop-color="rgba(94,234,212,.035)"/>
+            <stop offset="100%" stop-color="rgba(94,234,212,0)"/>
+          </radialGradient>
+          <radialGradient id="cornerGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(94,234,212,.10)"/>
+            <stop offset="45%" stop-color="rgba(94,234,212,.07)"/>
+            <stop offset="100%" stop-color="rgba(94,234,212,0)"/>
+          </radialGradient>
+          <radialGradient id="galHaze" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(233,238,246,.1)"/>
+            <stop offset="40%" stop-color="rgba(233,238,246,.055)"/>
+            <stop offset="75%" stop-color="rgba(233,238,246,.02)"/>
+            <stop offset="100%" stop-color="rgba(233,238,246,0)"/>
+          </radialGradient>
+        </defs>
+        <g id="stars"></g>
+        <ellipse cx="174" cy="-10" rx="205" ry="95" fill="url(#galHaze)" transform="rotate(-18 174 -10)"/>
+        <circle cx="174" cy="-10" r="150" fill="url(#rayGlow)"/>
+        <g id="orbits"></g>
+        <g id="pulse"></g>
+
+      </svg>
+    </div>
+  </div>
+</header>
+
+<!-- ============ 01 КЕЙСЫ ============ -->
+<section id="cases">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <h2>Реальные AI-решения для оптимизации процессов и работы с документами</h2>
+        <p class="sec-sub">От распознавания документов и сверки данных до мониторинга рисков — всё работает онлайн.</p>
+      </div>
+    </div>
+
+    <div class="cases">
+      <!-- Кейс 01 -->
+      <article class="case wide reveal">
+        <div class="case-text">
+        <div class="case-top"><span class="cnum">Кейс 01</span></div>
+        <p class="ctype">веб-платформа</p>
+        <h3>Porta — AI-платформа для импортёров</h3>
+        <dl>
+          <div><dt>Задача</dt><dd>Обработка поставки — коносаментов, инвойсов и договоров — занимала часы ручной работы: нужно было распознать скан, сверить данные с контрактом и свести цифры.</dd></div>
+          <div><dt>Решение</dt><dd>Извлечение данных из сканов своим OCR-парсером, распознавание товаров по фото, сверка поставки с договором и аналитика поставок.</dd></div>
+        </dl>
+        <p class="tech"><span>Python</span><span>Flask</span><span>OCR-парсер</span><span>Vision-модели</span><span>LLM API</span><span>PostgreSQL</span></p>
+        <div class="result">
+          <p class="rl">Результат</p>
+          <p class="rv">Часы ручной работы → минуты</p>
+        </div>
+        <a class="btn btn-primary" href="https://porta.cygnusweb.ru" target="_blank" rel="noopener">Открыть демо</a>
+        </div>
+        <div class="case-media">
+        <div class="shots" id="shots">
+            <div class="frame"><img src="img/home-dark.png" alt="Porta — главная, тёмная тема"><div class="cap">Главный экран · тёмная тема</div></div>
+            <div class="frame"><img src="img/documents.png" alt="Porta — база знаний"><div class="cap">База знаний · Документы</div></div>
+            <div class="frame"><img src="img/vision.png" alt="Porta — распознавание товаров по фото"><div class="cap">Товары · распознавание по фото</div></div>
+            <div class="frame"><img src="img/rag.png" alt="Porta — RAG-ассистент"><div class="cap">RAG-ассистент по ВЭД</div></div>
+            <div class="frame"><img src="img/analytics.png" alt="Porta — аналитика"><div class="cap">Аналитика поставок</div></div>
+            
+            <button class="arrow prev" id="prev" aria-label="Предыдущий слайд">‹</button>
+            <button class="arrow next" id="next" aria-label="Следующий слайд">›</button>
+            <div class="dots" id="dots"></div>
+          </div>
+          <div class="counter" id="counter"></div>
+
+        </div>
+      </article>
+
+      <div class="cases-row">
+      <!-- Кейс 02 -->
+      <article class="case reveal">
+        <div class="case-top"><span class="cnum">Кейс 02</span><span class="ctag ghost">Telegram-бот</span></div>
+        <h3>Work Bot — ВЭД-ассистент</h3>
+        <dl>
+          <div><dt>Задача</dt><dd>Вопросы по нормативке требуют поиска по документам — а ошибки дорого стоят.</dd></div>
+          <div><dt>Решение</dt><dd>Бот отвечает со ссылкой на пункт документа — вопрос задаётся прямо в Telegram.</dd></div>
+        </dl>
+        <p class="tech"><span>Telegram Bot API</span><span>RAG</span><span>эмбеддинги BGE-M3</span><span>LLM API</span></p>
+        <div class="tg">
+          <div class="tg-head"><div><div class="tg-name">Work Bot</div><div class="tg-status">онлайн</div></div></div>
+          <div class="tg-body">
+            <div class="msg user" id="wb1">На какой срок можно временно ввезти транспортное средство?</div>
+            <div class="typing" id="wbtp"><i></i><i></i><i></i></div>
+            <div class="msg bot" id="wb2">До 6 месяцев, продление — через заявление в таможенный орган.<span class="src">источник: ст. 264 ТК ЕАЭС</span></div>
+          </div>
+        </div>
+        <div class="result">
+          <p class="rl">Результат</p>
+          <p class="rv">Документ за 1–2 минуты, каждый ответ — с источником</p>
+        </div>
+        <a class="btn btn-ghost" href="#contact">Узнать о решении</a>
+      </article>
+
+      <!-- Кейс 03 -->
+      <article class="case reveal">
+        <div class="case-top"><span class="cnum">Кейс 03</span><span class="ctag ghost">мониторинг</span></div>
+        <h3>Аналитик маршрутов поставок</h3>
+        <dl>
+          <div><dt>Задача</dt><dd>Час в день на поиск новостей о задержках, тарифах и погоде — риски узнавались поздно.</dd></div>
+          <div><dt>Решение</dt><dd>Следит за событиями на маршрутах и присылает короткий вывод: что случилось и насколько критично.</dd></div>
+        </dl>
+        <p class="tech"><span>Python</span><span>GDELT</span><span>FastAPI</span><span>Docker</span></p>
+        <div class="result">
+          <p class="rl">Результат</p>
+          <p class="rv">10 минут вместо часа — и о рисках заранее</p>
+        </div>
+        <a class="btn btn-ghost" href="#approach">Посмотреть подход</a>
+      </article>
+
+      <!-- Кейс 04 · голосовой агент -->
+      <article class="case reveal">
+        <div class="case-top"><span class="cnum">Кейс 04</span><span class="ctag ghost">в разработке</span></div>
+        <h3>Porta Voice — голосовой ВЭД-агент</h3>
+        <dl>
+          <div><dt>Задача</dt><dd>Руки заняты документами — печатать вопрос неудобно.</dd></div>
+          <div><dt>Решение</dt><dd>Голосовой вход в Porta: спроси голосом — услышишь ответ.</dd></div>
+        </dl>
+        <p class="tech"><span>Python</span><span>FastAPI</span><span>Speech-to-Text (Whisper)</span><span>TTS</span><span>LLM API</span></p>
+        <div class="result">
+          <p class="rl">Результат</p>
+          <p class="rv">Релиз 1 — в работе</p>
+        </div>
+        <a class="btn btn-ghost" href="#contact">Следить за проектом</a>
+      </article>
+
+      <!-- Кейс 05 · классификатор ТН ВЭД -->
+      <article class="case reveal">
+        <div class="case-top"><span class="cnum">Кейс 05</span><span class="ctag ghost">в планах</span></div>
+        <h3>Классификатор кода ТН ВЭД</h3>
+        <dl>
+          <div><dt>Задача</dt><dd>Неверный код ТН ВЭД — самая дорогая ошибка декларанта: доначисления и штрафы.</dd></div>
+          <div><dt>Решение</dt><dd>Фото или описание товара → код ТН ВЭД и обоснование со ссылкой на решение классификации.</dd></div>
+        </dl>
+        <p class="tech"><span>Vision-модели</span><span>LLM API</span><span>промпт-инжиниринг</span><span>база решений классификации</span></p>
+        <div class="result">
+          <p class="rl">Результат</p>
+          <p class="rv">Товар → код → обоснование</p>
+        </div>
+        <a class="btn btn-ghost" href="#contact">Обсудить задачу</a>
+      </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 ПОДХОД ============ -->
+<section id="approach" class="approach">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Как я превращаю процесс в AI-инструмент</h2>
+      <p class="big reveal">Нахожу место, где он действительно снимает рутину и помогает быстрее принимать решения.</p>
+      <p class="approach-note reveal">Встраиваю решения в привычную среду: 1С, Битрикс24, Telegram и веб-платформы.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">        <div class="step-content">
+          <p class="stx">Разбираюсь, как всё работает</p>
+          <p class="sdes">Кто, что и в какой последовательности делает. Где уходит время и появляются лишние действия.</p>
+        </div>
+      </div>
+      <div class="step reveal">        <div class="step-content">
+          <p class="stx">Нахожу точку, где процесс тормозит</p>
+          <p class="sdes">Ручной ввод, поиск информации, перепроверки, ожидание ответа — то, что можно упростить.</p>
+        </div>
+      </div>
+      <div class="step reveal">        <div class="step-content">
+          <p class="stx">Собираю инструмент, которым пользуются</p>
+          <p class="sdes">Понятный интерфейс, нужные данные, конкретный результат — без лишней сложности.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ КОНТАКТЫ ============ -->
+<div class="contact-wrap" id="contact">
+  <section class="contact">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <h2>Есть процесс, который пора отдать AI?</h2>
+        <p class="reveal">Обсудим задачу и найдём способ сделать её быстрее, понятнее и надёжнее.</p>
+      </div>
+      <div class="contact-list reveal">
+        <a class="c-item" href="mailto:irakorshunova@mail.ru">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          <span>irakorshunova@mail.ru</span></a>
+        <a class="c-item" href="https://t.me/i_Devos" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          <span>Telegram — @i_Devos</span></a>
+        <a class="c-item" href="https://github.com/Ira-Korshunova" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2.17c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.35.96.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.7-1.47 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.74.77 1.18 1.79 1.18 3.05 0 4.42-2.7 5.39-5.26 5.67.41.36.78 1.06.78 2.14v3.15c0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+          <span>GitHub — Ira-Korshunova</span></a>
+      </div>
+      <div class="contact-cta reveal"><a class="btn btn-primary" href="mailto:irakorshunova@mail.ru">Написать мне</a></div>
+    </div>
+  </section>
+  <footer>
+    <div class="wrap foot-in">
+      <span>© 2026 Ирина Коршунова</span>
+      <span class="foot-note"><em>Built with clear thinking and useful AI.</em></span>
+    </div>
+  </footer>
+</div>
+
+<script>
+  // Плавное появление секций
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("on"); io.unobserve(e.target); } });
+  }, { threshold: .12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+  const frames = [...document.querySelectorAll(".frame")];
+  const dotsBox = document.getElementById("dots"), counter = document.getElementById("counter");
+  let i = 0;
+  frames.forEach((_, n) => {
+    const d = document.createElement("button");
+    d.className = "dot"; d.setAttribute("aria-label", "Слайд " + (n + 1));
+    d.addEventListener("click", () => show(n));
+    dotsBox.appendChild(d);
+  });
+  const dots = [...dotsBox.children];
+  function show(n) {
+    i = (n + frames.length) % frames.length;
+    frames.forEach((f, k) => f.classList.toggle("on", k === i));
+    dots.forEach((d, k) => d.classList.toggle("on", k === i));
+    counter.textContent = (i + 1) + " / " + frames.length + " · " + ["главная", "документы", "товары", "RAG", "аналитика"][i];
+  }
+  document.getElementById("prev").addEventListener("click", () => show(i - 1));
+  document.getElementById("next").addEventListener("click", () => show(i + 1));
+  show(0);
+
+  // Цикл TG-диалога в карточке Work Bot
+  const wb1 = document.getElementById("wb1"), wb2 = document.getElementById("wb2"), wbtp = document.getElementById("wbtp");
+  function wbCycle() {
+    wb1.classList.remove("on"); wb2.classList.remove("on"); wbtp.classList.remove("on");
+    setTimeout(() => wb1.classList.add("on"), 500);
+    setTimeout(() => wbtp.classList.add("on"), 1400);
+    setTimeout(() => { wbtp.classList.remove("on"); wb2.classList.add("on"); }, 2700);
+    setTimeout(wbCycle, 7200);
+  }
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    wb1.classList.add("on"); wb2.classList.add("on");
+  } else { wbCycle(); }
+
+  // Три веера-прожектора в hero: каждый бродит по своей окружности
+  const NS = "http://www.w3.org/2000/svg";
+  const svgEl = document.querySelector(".rays");
+  const fans = [];
+  if (svgEl) {
+    const defs = svgEl.querySelector("defs");
+    const FANS = [
+      { id: "rays-g1", ox: 174, oy: -84, n: 16, base: 400, spread: 156, klen: 150 },
+      { id: "rays-g2", ox: 100, oy: -30, n: 16, base: 400, spread: 156, klen: 150 },
+      { id: "rays-g3", ox: 129, oy: 56, n: 16, base: 400, spread: 156, klen: 150 },
+      { id: "rays-g4", ox: 219, oy: 56, n: 16, base: 400, spread: 156, klen: 150 },
+      { id: "rays-g5", ox: 248, oy: -30, n: 16, base: 400, spread: 156, klen: 150 }
+    ];
+    FANS.forEach((F, fi) => {
+      const g = document.getElementById(F.id);
+      if (!g) return;
+      const group = { runners: [], bases: [], turn: { cur: fi * 120, target: Math.random() * 360, wait: 2 + fi }, ox: F.ox, oy: F.oy };
+      for (let k = 0; k < F.n; k++) {
+        const ang = -F.spread / 2 + k * (F.spread / (F.n - 1));
+        const t = Math.abs(ang) / (F.spread / 2);
+        const len = (F.base + F.klen) - F.klen * Math.pow(t, 1.4);
+        const cls = k % 3 === 0 ? "gh" : "sp";
+        const rad = ang * Math.PI / 180;
+        const x2 = F.ox + len * Math.cos(rad), y2 = F.oy + len * Math.sin(rad);
+        const lg = document.createElementNS(NS, "linearGradient");
+        const gid = "gr" + fi + "_" + k;
+        lg.setAttribute("id", gid);
+        lg.setAttribute("gradientUnits", "userSpaceOnUse");
+        lg.setAttribute("x1", F.ox); lg.setAttribute("y1", F.oy);
+        lg.setAttribute("x2", x2.toFixed(1)); lg.setAttribute("y2", y2.toFixed(1));
+        const c1 = document.createElementNS(NS, "stop");
+        c1.setAttribute("offset", "0%");
+        c1.setAttribute("stop-color", "rgba(158,178,205,.32)");
+        const c2 = document.createElementNS(NS, "stop");
+        c2.setAttribute("offset", "85%");
+        c2.setAttribute("stop-color", "rgba(158,178,205,.05)");
+        const c3 = document.createElementNS(NS, "stop");
+        c3.setAttribute("offset", "100%");
+        c3.setAttribute("stop-color", "rgba(226,232,240,0)");
+        lg.appendChild(c1); lg.appendChild(c2); lg.appendChild(c3);
+        defs.appendChild(lg);
+        const lgr = lg.cloneNode(true);
+        lgr.setAttribute("id", gid + "r");
+        lgr.children[0].setAttribute("stop-color", "rgba(190,205,225,.65)");
+        defs.appendChild(lgr);
+        const line = document.createElementNS(NS, "line");
+        line.setAttribute("x1", F.ox); line.setAttribute("y1", F.oy);
+        line.setAttribute("x2", x2.toFixed(1)); line.setAttribute("y2", y2.toFixed(1));
+        line.setAttribute("class", "ray " + cls);
+        line.setAttribute("pathLength", "1");
+        line.style.stroke = "url(#" + gid + ")";
+        g.appendChild(line);
+        const fl = line.cloneNode();
+        fl.setAttribute("class", "ray-run " + cls);
+        fl.style.stroke = "url(#" + gid + "r)";
+        g.appendChild(fl);
+        group.runners.push(fl); group.bases.push(line);
+      }
+      fans.push(group);
+    });
+  }
+
+  // Бегущий по лучам свет + блуждание прожекторов
+  if (fans.length && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    fans.forEach(f => { f.st = f.runners.map(() => ({ o: Math.random() })); });
+    let rlast = 0;
+    function rayTick(ts) {
+      const dt = Math.min(0.05, rlast ? (ts - rlast) / 1000 : 0); rlast = ts;
+      fans.forEach((f, fi) => {
+        // прожектор: стоит, потом разворачивается в новую точку своей окружности
+        f.turn.wait -= dt;
+        // гармоничная смена углов: ровные шаги 90/120/180°, паузы подлиннее
+        if (f.turn.wait <= 0) {
+          const step = [90, -90, 120, -120, 180][Math.floor(Math.random() * 5)];
+          f.turn.target = (f.turn.target + step + 720) % 360;
+          f.turn.wait = 6 + Math.random() * 5;
+        }
+        let delta = ((f.turn.target - f.turn.cur + 540) % 360) - 180;
+        f.turn.cur += delta * Math.min(1, dt * 0.22); // поворот неспешный
+        if (f.turn.cur < 0) f.turn.cur += 360;
+        if (f.turn.cur >= 360) f.turn.cur -= 360;
+        f.st.forEach((st, k) => {
+          st.o -= dt * 0.1; // снег летит от центра наружу
+          if (st.o <= -1) st.o += 1;
+          f.runners[k].style.strokeDashoffset = st.o.toFixed(3);
+          const sway = f.turn.cur + 1.4 * Math.sin(ts / 5000 + k * 0.9 + fi * 2);
+          f.runners[k].setAttribute("transform", "rotate(" + sway.toFixed(2) + " " + f.ox + " " + f.oy + ")");
+          const base = f.bases[k];
+          if (base) base.setAttribute("transform", "rotate(" + (sway * 0.85).toFixed(2) + " " + f.ox + " " + f.oy + ")");
+        });
+      });
+      requestAnimationFrame(rayTick);
+    }
+    requestAnimationFrame(rayTick);
+  }
+
+  // Созвездие: ровная россыпь по гексагональной решётке с мягким джиттером
+  if (svgEl) {
+    const sg = document.getElementById("stars");
+    const pts = [];
+    let seed = 11;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    // три закрученных рукава от центра — как у спиральной галактики
+    for (let arm = 0; arm < 5; arm++) {
+      const phase = arm * 1.257 + 0.6;               // 120° между рукавами
+      for (let i = 0; i < 34; i++) {
+        const t = i / 33;                             // 0 у центра, 1 на кончике
+        const r = 62 + i * 8;                         // расходятся от центра
+        const a = phase + i * 0.051;                  // лёгкая закрутка
+        const jx = (rnd() - 0.5) * 13, jy = (rnd() - 0.5) * 13;
+        const x = 174 + r * Math.cos(a) + jx;
+        const y = -10 + r * Math.sin(a) * 0.72 + jy;  // сплюснуто по вертикали
+        pts.push([x, y, 0.7 + rnd() * 1.4, 0.28 + rnd() * 0.32]);
+        // россыпь-спутники рядом с основной звездой рукава; на конце — крупнее
+        if (i > 2) {
+          for (let k = 0; k < 6; k++) {
+            const a2 = a + (rnd() - 0.5) * (0.16 + t * 0.22);
+            const r2 = r + (rnd() - 0.5) * (16 + t * 26);
+            pts.push([174 + r2 * Math.cos(a2), -10 + r2 * Math.sin(a2) * 0.72,
+                      0.45 + rnd() * 0.9 + (i > 22 ? 0.5 + rnd() * 0.5 : 0),
+                      0.14 + rnd() * 0.2]);
+          }
+        }
+      }
+    }
+    // «пыль» между рукавами — мелкие тусклые звёздочки для пушистости
+    for (let i = 0; i < 1400; i++) {
+      const r = Math.sqrt(rnd()) * 250;               // равномерно по площади диска
+      const a = rnd() * Math.PI * 2;
+      const x = 174 + r * Math.cos(a);
+      const y = -10 + r * Math.sin(a) * 0.72;
+      pts.push([x, y, 0.5 + rnd() * 0.9, 0.18 + rnd() * 0.26]);
+    }
+    // яркие «передние» звёзды — звёздочки: свечение + четыре луча + мерцание
+    for (let i = 0; i < 54; i++) {
+      const r = Math.sqrt(rnd()) * 330;
+      const a = rnd() * Math.PI * 2;
+      const x = 174 + r * Math.cos(a);
+      const y = -10 + r * Math.sin(a) * 0.72;
+      const warm = rnd() < 0.22;                      // изредка тёплые, как в кадре
+      const col = warm ? "238,222,182" : "232,240,248";
+      const rr = warm ? 1.5 + rnd() * 1.1 : 1.3 + rnd() * 1.7;
+      const g2 = document.createElementNS(NS, "g");
+      g2.setAttribute("transform", "translate(" + x.toFixed(1) + " " + y.toFixed(1) + ")");
+      const glowO = document.createElementNS(NS, "circle");
+      glowO.setAttribute("r", (rr * 3.2).toFixed(1));
+      glowO.setAttribute("fill", "rgba(" + col + ",.1)");
+      const glowI = document.createElementNS(NS, "circle");
+      glowI.setAttribute("r", (rr * 1.9).toFixed(1));
+      glowI.setAttribute("fill", "rgba(" + col + ",.17)");
+      const R = rr * 2.7;
+      const spikes = document.createElementNS(NS, "path");
+      spikes.setAttribute("d", "M0 " + -R + " Q0 0 " + R + " 0 Q0 0 0 " + R + " Q0 0 " + -R + " 0 Q0 0 0 " + -R + " Z");
+      spikes.setAttribute("fill", "rgba(" + col + ",.45)");
+      const core = document.createElementNS(NS, "circle");
+      core.setAttribute("r", (rr * 0.55).toFixed(2));
+      core.setAttribute("fill", "rgba(" + col + ",.95)");
+      g2.appendChild(glowO); g2.appendChild(glowI); g2.appendChild(spikes); g2.appendChild(core);
+      g2.style.animation = "twinkle " + (3 + rnd() * 3).toFixed(2) + "s ease-in-out " + (rnd() * 4).toFixed(2) + "s infinite";
+      sg.appendChild(g2);
+    }
+    pts.forEach(p => {
+      const d = document.createElementNS(NS, "circle");
+      d.setAttribute("cx", p[0].toFixed(1)); d.setAttribute("cy", p[1].toFixed(1));
+      d.setAttribute("r", p[2].toFixed(2));
+      d.setAttribute("fill", "rgba(190,205,225," + p[3].toFixed(2) + ")");
+      sg.appendChild(d);
+    });
+  }
+
+  // Орбиты с «грузами» + сонар-пульс в hero
+  if (svgEl && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const og = document.getElementById("orbits"), pg = document.getElementById("pulse");
+    // три наклонённые орбиты вокруг общего центра пятилепестка
+    const ORB = [
+      { rx: 132, ry: 88,  rot: 30,  dur: 20, off: 0.55 },
+      { rx: 168, ry: 118, rot: -18, dur: 26, off: 0.0 },
+      { rx: 232, ry: 152, rot: 22,  dur: 38, off: 0.4 },
+      { rx: 296, ry: 196, rot: -6,  dur: 52, off: 0.75 },
+      { rx: 356, ry: 232, rot: 12,  dur: 66, off: 0.15 }
+    ];
+    const movers = [];
+    ORB.forEach((o, oi) => {
+      const el = document.createElementNS(NS, "ellipse");
+      el.setAttribute("cx", 174); el.setAttribute("cy", 12);
+      el.setAttribute("rx", o.rx); el.setAttribute("ry", o.ry);
+      el.setAttribute("fill", "none");
+      el.setAttribute("stroke", "rgba(158,178,205,.13)");
+      el.setAttribute("stroke-width", "1");
+      el.setAttribute("transform", "rotate(" + o.rot + " 174 12)");
+      el.setAttribute("pathLength", "1");
+      og.appendChild(el);
+      // грузик: маленькая мятная точка едет по орбите
+      const dot = document.createElementNS(NS, "circle");
+      dot.setAttribute("r", "3.2");
+      dot.setAttribute("fill", "rgba(94,234,212,.8)");
+      og.appendChild(dot);
+      movers.push({ dot, o, oi });
+    });
+    // сонар: кольцо расходится от центра и тает
+    const ring = document.createElementNS(NS, "circle");
+    ring.setAttribute("cx", 174); ring.setAttribute("cy", -10);
+    ring.setAttribute("fill", "none");
+    ring.setAttribute("stroke", "rgba(94,234,212,.45)");
+    ring.setAttribute("stroke-width", "2");
+    pg.appendChild(ring);
+    let pl = 0, pulseT = 0;
+    // залпы снежинок: каждое кольцо сонара выпускает партию точек во все стороны
+    const SNOW_N = 26, snow = [];
+    const sgg = document.createElementNS(NS, "g");
+    pg.parentNode.insertBefore(sgg, pg);
+    for (let i = 0; i < SNOW_N; i++) {
+      const d = document.createElementNS(NS, "circle");
+      d.setAttribute("r", "2.4");
+      d.setAttribute("fill", "rgba(190,205,225,.7)");
+      d.setAttribute("opacity", "0");
+      sgg.appendChild(d);
+      snow.push({ el: d, a: Math.random() * Math.PI * 2, v: 55 + Math.random() * 55, size: 1.6 + Math.random() * 2.2, t: -1 });
+    }
+    function orbitTick(ts) {
+      const dt = Math.min(0.05, pl ? (ts - pl) / 1000 : 0); pl = ts;
+      movers.forEach(m => {
+        const a = (ts / 1000 / m.o.dur + m.o.off) * Math.PI * 2;
+        const x = 174 + m.o.rx * Math.cos(a), y = 12 + m.o.ry * Math.sin(a);
+        // точки «едут» с учётом наклона орбиты
+        const r = m.o.rot * Math.PI / 180;
+        const xr = 174 + (x - 174) * Math.cos(r) - (y - 12) * Math.sin(r);
+        const yr = 12 + (x - 174) * Math.sin(r) + (y - 12) * Math.cos(r);
+        m.dot.setAttribute("cx", xr.toFixed(1)); m.dot.setAttribute("cy", yr.toFixed(1));
+      });
+      // сонар: раз в 4.2 сек кольцо растёт и тает, залп снежинок — вместе с ним
+      const prev = pulseT;
+      pulseT = (pulseT + dt) % 4.2;
+      if (false) ; // залпы снежинок отключены
+      const t = pulseT / 4.2;
+      ring.setAttribute("r", (16 + t * 320).toFixed(1));
+      ring.setAttribute("stroke-opacity", "0"); // сонар отключён
+      snow.forEach(p => {
+        if (p.t < 0) { p.el.setAttribute("opacity", "0"); return; }
+        p.t += dt;
+        const r = p.v * p.t, life = 4.2 / p.v * 60;
+        const x = 174 + r * Math.cos(p.a), y = -10 + r * Math.sin(p.a);
+        p.el.setAttribute("cx", x.toFixed(1)); p.el.setAttribute("cy", y.toFixed(1));
+        p.el.setAttribute("r", p.size.toFixed(2));
+        const fade = Math.max(0, 1 - p.t / 4.2);
+        p.el.setAttribute("opacity", (0.75 * fade).toFixed(3));
+      });
+      requestAnimationFrame(orbitTick);
+    }
+    requestAnimationFrame(orbitTick);
+  }
+
+  // Мобильное меню
+  const burger = document.getElementById("burger"), menu = document.getElementById("menu");
+  burger.addEventListener("click", () => {
+    const open = menu.classList.toggle("open");
+    burger.setAttribute("aria-expanded", open);
+  });
+  menu.querySelectorAll("a").forEach(a => a.addEventListener("click", () => menu.classList.remove("open")));
+
+  // Подсветка за курсором
+  const spot = document.createElement("div");
+  spot.className = "spot"; spot.setAttribute("aria-hidden", "true");
+  document.body.appendChild(spot);
+
+  // Небо: немного светящихся звёзд по всему экрану
+  const sky = document.createElement("div");
+  sky.setAttribute("aria-hidden", "true");
+  sky.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100vh;z-index:0;pointer-events:none;";
+  document.body.appendChild(sky);
+  for (let i = 0; i < 18; i++) {
+    const col = Math.random() < 0.22 ? "238,222,182" : "232,240,248";
+    const R = 6 + Math.random() * 4;                    // радиус лучей звезды
+    const s = document.createElement("div");
+    const sz = (R * 2.9).toFixed(0);
+    s.style.cssText =
+      "position:absolute;left:" + (Math.random() * 100).toFixed(2) + "%;top:" + (Math.random() * 100).toFixed(2) + "%;" +
+      "width:" + sz + "px;height:" + sz + "px;" +
+      "animation:twinkle " + (3.5 + Math.random() * 4).toFixed(2) + "s ease-in-out " + (Math.random() * 6).toFixed(2) + "s infinite;";
+    s.innerHTML =
+      '<svg viewBox="-12 -12 24 24" width="100%" height="100%">' +
+      '<circle r="' + (R * 1.05).toFixed(1) + '" fill="rgba(' + col + ',.1)"/>' +
+      '<circle r="' + (R * 0.62).toFixed(1) + '" fill="rgba(' + col + ',.17)"/>' +
+      '<path d="M0 -' + R + ' Q0 0 ' + R + ' 0 Q0 0 0 ' + R + ' Q0 0 -' + R + ' 0 Q0 0 0 -' + R + ' Z" fill="rgba(' + col + ',.45)"/>' +
+      '<circle r="' + (R * 0.2).toFixed(2) + '" fill="rgba(' + col + ',.95)"/>' +
+      '</svg>';
+    sky.appendChild(s);
+  }
+
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches && matchMedia("(hover: hover)").matches) {
+    document.addEventListener("mousemove", (e) => {
+      document.body.classList.add("has-spot");
+      spot.style.setProperty("--mx", e.clientX + "px");
+      spot.style.setProperty("--my", e.clientY + "px");
+    }, { passive: true });
+  }
+</script>
+</body>
+</html>
